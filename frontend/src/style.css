@@ -1,1 +1,18 @@
 @import "tailwindcss";
+
+@theme {
+      --color-ink: #1B2340;
+      --color-ink-soft: #4A5170;
+      --color-paper: #F1F3F6;
+      --color-accent: #8A2E2E;
+      --color-status-active: #2F6F4E;
+      --color-status-graduated: #8A6D1B;
+      --color-status-dropped: #6B7280;
+      --font-display: "Source Serif 4", serif;
+      --font-sans: "IBM Plex Sans", sans-serif;
+}
+
+body {
+      background-color: var(--color-paper);
+      font-family: var(--font-sans);
+}
