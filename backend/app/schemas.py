@@ -36,3 +36,10 @@ class StudentOut(BaseModel):
     enrollment_status: EnrollmentStatus
     created_at: datetime
     updated_at: datetime
+
+
+class StudentListResponse(BaseModel):
+    total: int
+    page: int
+    page_size: int
+    items: list[StudentOut]
