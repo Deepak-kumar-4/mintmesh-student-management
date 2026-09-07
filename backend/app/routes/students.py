@@ -1,3 +1,4 @@
+from datetime import datetime, UTC
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -10,6 +11,7 @@ from app.schemas import (
     StudentCreate,
     StudentListResponse,
     StudentOut,
+    StudentUpdate,
 )
 
 router = APIRouter(prefix="/students", tags=["students"])
@@ -70,3 +72,45 @@ def get_student(student_id: int, db: Session = Depends(get_db)):
     if student is None:
         raise HTTPException(status_code=404, detail="Student not found")
     return student
+
+
+@router.patch("/{student_id}", response_model=StudentOut)
+def update_student(
+    student_id: int, student_update: StudentUpdate, db: Session = Depends(get_db)
+):
+    student = db.query(Student).filter(Student.id == student_id).first()
+    if student is None:
+        raise HTTPException(status_code=404, detail="Student not found")
+
+    update_data = student_update.model_dump(exclude_unset=True)
+
+    if "email" in update_data:
+        existing = (
+            db.query(Student)
+            .filter(Student.email == update_data["email"], Student.id != student_id)
+            .first()
+        )
+        if existing:
+            raise HTTPException(
+                status_code=409, detail="A student with this email already exists"
+            )
+
+    for field, value in update_data.items():
+        setattr(student, field, value)
+
+    student.updated_at = datetime.now(UTC)
+
+    db.commit()
+    db.refresh(student)
+    return student
+
+
+@router.delete("/{student_id}")
+def delete_student(student_id: int, db: Session = Depends(get_db)):
+    student = db.query(Student).filter(Student.id == student_id).first()
+    if student is None:
+        raise HTTPException(status_code=404, detail="Student not found")
+
+    db.delete(student)
+    db.commit()
+    return {"message": "Student deleted successfully"}
