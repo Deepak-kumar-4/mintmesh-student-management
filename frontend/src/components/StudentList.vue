@@ -4,7 +4,7 @@ import { getStudents } from '../services/api.js';
 import StatusFilter from './StatusFilter.vue';
 import Pagination from './Pagination.vue';
 
-defineEmits(['edit', 'delete']);
+defineEmits(['create', 'edit', 'delete']);
 
 const PAGE_SIZE = 10;
 
@@ -68,13 +68,24 @@ function clearFilter() {
 }
 
 watch([page, status], fetchStudents, { immediate: true });
+
+defineExpose({ refresh: fetchStudents });
 </script>
 
 <template>
   <div>
     <div class="mb-6 flex items-center justify-between">
       <h1 class="font-display text-3xl font-semibold text-ink">Student Records</h1>
-      <StatusFilter :model-value="status" @change="handleFilterChange" />
+      <div class="flex items-center gap-3">
+        <StatusFilter :model-value="status" @change="handleFilterChange" />
+        <button
+          type="button"
+          class="rounded bg-accent px-4 py-2 text-sm font-medium text-white hover:opacity-90"
+          @click="$emit('create')"
+        >
+          Add Student
+        </button>
+      </div>
     </div>
 
     <div v-if="error" class="flex flex-col items-center gap-3 rounded-md border border-ink-soft/20 bg-white py-16 font-sans">
